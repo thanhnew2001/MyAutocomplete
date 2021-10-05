@@ -6,24 +6,34 @@ const AutoComplete = ({ suggestions }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [input, setInput] = useState("");
 
-  const onChange = (e) => {
+  const onChange = async (e) => {
     const userInput = e.target.value;
+
+    setInput(e.target.value);
+    setActiveSuggestionIndex(0);
+    setShowSuggestions(true);
+
+    const res = await fetch("https://api.techkids.academy/animals")
+    const json = await res.json()
+
+    suggestions =  json.Items
 
     // Filter our suggestions that don't contain the user's input
     const unLinked = suggestions.filter(
       (suggestion) =>
-        suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
+        suggestion.name.toLowerCase().indexOf(userInput.toLowerCase()) > -1
     );
 
-    setInput(e.target.value);
     setFilteredSuggestions(unLinked);
-    setActiveSuggestionIndex(0);
-    setShowSuggestions(true);
+ 
   };
 
   const onClick = (e) => {
-    setFilteredSuggestions([]);
+
     setInput(e.target.innerText);
+    console.log(e.target.id)
+
+    setFilteredSuggestions([]);
     setActiveSuggestionIndex(0);
     setShowSuggestions(false);
   };
@@ -31,7 +41,9 @@ const AutoComplete = ({ suggestions }) => {
   const onKeyDown = (e) => {
     // User pressed the enter key
     if (e.keyCode === 13) {
-      setInput(filteredSuggestions[activeSuggestionIndex]);
+      setInput(filteredSuggestions[activeSuggestionIndex].name);
+
+      console.log(filteredSuggestions[activeSuggestionIndex].id)
       setActiveSuggestionIndex(0);
       setShowSuggestions(false);
     }
@@ -65,8 +77,8 @@ const AutoComplete = ({ suggestions }) => {
           }
 
           return (
-            <li className={className} key={suggestion} onClick={onClick}>
-              {suggestion}
+            <li className={className} key={suggestion.id} id={suggestion.id} onClick={onClick}>
+              {suggestion.name}
             </li>
           );
         })}
@@ -95,3 +107,4 @@ const AutoComplete = ({ suggestions }) => {
 };
 
 export default AutoComplete;
+
